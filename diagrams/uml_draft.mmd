@@ -1,0 +1,48 @@
+classDiagram
+    class Owner {
+        +int ownerId
+        +String name
+        +Date joinDate
+        +List~Pet~ pets
+        +addPet()
+        +scheduleTask()
+        +viewSchedule()
+    }
+
+    class Pet {
+        +int petId
+        +String name
+        +int age
+        +Date birthDate
+        +String breed
+        +String type
+        +Owner owner
+        +List~Task~ tasks
+        +updatePetInfo()
+        +addTask()
+    }
+
+    class Task {
+        +int taskId
+        +String title
+        +Date date
+        +Time time
+        +int duration
+        +String recurrence
+        +String status
+        +Pet pet
+        +editTask()
+        +deleteTask()
+        +markComplete()
+    }
+
+    class Scheduler {
+        +List~Task~ tasks
+        +addTask()
+        +viewSchedule()
+        +checkConflicts()
+    }
+
+    Owner "1" --> "0..*" Pet : owns
+    Pet "1" --> "0..*" Task : has
+    Scheduler "1" --> "0..*" Task : manages

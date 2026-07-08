@@ -4,13 +4,36 @@
 
 **a. Initial design**
 
-- Briefly describe your initial UML design.
-- What classes did you include, and what responsibilities did you assign to each?
+My initial UML design focused on four main classes: Owner, Pet, Task, and Scheduler. The core actions I wanted to support were adding a pet, scheduling a task for that pet, and viewing the schedule. I designed the system around a simple workflow where an owner manages pets and organizes their care tasks.
+
+***Classes and responsibilities***
+
+- Owner: stores basic information about the pet owner, such as name and join date. The owner manages one or more pets and can create tasks for them.
+- Pet: stores information about the pet, such as name, age, birth date, breed, and type. A pet belongs to an owner and can have multiple tasks.
+- Task: stores details such as task name, date, time, duration, recurrence, and status. A task is assigned to a pet.
+- Scheduler: organizes tasks by date and time and helps display the pet’s schedule.
+
+***Relationships***
+
+- Owner to Pet: one-to-many
+- Pet to Task: one-to-many
+- Scheduler to Task: one scheduler can manage many tasks
+
+***Missing cases to consider***
+
+- Editing or deleting a pet
+- Editing or deleting a task
+- Marking a task as completed or skipped
+- Handling recurring tasks
+- Preventing schedule conflicts
+- Viewing tasks by day, week, or month
+- Sending reminders or notifications
 
 **b. Design changes**
 
-- Did your design change during implementation?
-- If yes, describe at least one change and why you made it.
+- Yes. During implementation, I adjusted the design of the Scheduler so it had a direct connection to an Owner or Pet instead of only managing a list of tasks.
+
+- I added optional owner and pet references to the Scheduler class because it made the relationships clearer and helped the schedule feel more connected to a specific pet owner. This change also made it easier to think about how tasks would be grouped and viewed later, instead of treating the scheduler as a disconnected list of tasks.
 
 ---
 
