@@ -84,8 +84,22 @@ if owner.get_all_tasks():
     for task in owner.get_all_tasks():
         scheduler.add_task(task)
 
-    for task in scheduler.view_schedule():
-        pet_name = task.pet.name if task.pet else "Unassigned"
-        st.write(f"- {task.time}: {task.description} ({pet_name})")
+    conflict_message = scheduler.check_conflicts()
+    if conflict_message != "No conflicts detected.":
+        st.warning(
+            f"{conflict_message} Please update one of the task times so your pets are not double-booked."
+        )
+
+    schedule_rows = [
+        {
+            "Time": task.time,
+            "Task": task.description,
+            "Pet": task.pet.name if task.pet else "Unassigned",
+            "Status": task.status,
+        }
+        for task in scheduler.view_schedule()
+    ]
+
+    st.table(schedule_rows)
 else:
     st.info("No tasks yet. Add one above.")

@@ -93,14 +93,38 @@ The scheduling logic in PawPal+ now supports a few lightweight automation featur
 | Conflict detection | `Scheduler.check_conflicts()` | Returns a warning message when multiple tasks share the same time slot. |
 | Recurring tasks | `Task.mark_complete()` | Creates a new pending task for the next occurrence when a task is marked complete and its frequency is `daily` or `weekly`. |
 
-## 📸 Demo Walkthrough
+## Demo Walkthrough
 
-Describe your app in numbered steps so a reader can follow along without watching a video:
+### Main UI features
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+- Update the owner name at the top of the page.
+- Add a new pet by entering a name and selecting a species.
+- Schedule a task by choosing a pet, typing a task description, and entering a time.
+- View the full day’s schedule in a sorted table that lists time, task, pet, and status.
+- Receive a visible warning when two or more tasks are scheduled at the same time.
 
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
+### Example workflow
+
+1. Open the app and verify the owner name is correct.
+2. Add a pet such as `Mochi` with species `dog`.
+3. Choose `Mochi` from the pet dropdown.
+4. Schedule a task like `Morning walk` at `08:00`.
+5. Add another task for the same or a different pet, for example `Feed breakfast` at `07:00`.
+6. Check `Today's Schedule` to confirm tasks appear in chronological order.
+7. If two tasks share the same time, review the warning and update one of the times.
+
+### Key Scheduler behaviors shown
+
+- **Sorting by time**: the scheduler uses `Scheduler.view_schedule()` to order tasks by their `HH:MM` time value.
+- **Conflict warnings**: `Scheduler.check_conflicts()` detects duplicate times and surfaces a `st.warning(...)` message in the UI.
+- **Recurrence support**: `Task.mark_complete()` can create a next occurrence when a task is marked complete and its frequency is `daily` or `weekly`.
+- **Pet-task linkage**: tasks added through the UI are assigned to the selected pet and preserved across the schedule.
+
+### Sample CLI output from `main.py`
+
+```bash
+$ python main.py
+08:00 - Morning walk (Mochi)
+12:00 - Lunch (Mochi)
+18:00 - Evening play (Luna)
+```
