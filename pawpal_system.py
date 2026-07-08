@@ -30,10 +30,25 @@ class Task:
             self.pet.tasks = [task for task in self.pet.tasks if task is not self]
         self.pet = None
 
-    def mark_complete(self) -> None:
-        """Mark the task complete."""
+    def mark_complete(self) -> Optional["Task"]:
+        """Mark the task complete and create the next recurring occurrence when needed."""
         self.completed = True
         self.status = "completed"
+
+        if self.frequency in {"daily", "weekly"} and self.pet is not None:
+            next_task = Task(
+                task_id=self.task_id + 1000,
+                description=self.description,
+                time=self.time,
+                frequency=self.frequency,
+                completed=False,
+                status="pending",
+                pet=self.pet,
+            )
+            self.pet.add_task(next_task)
+            return next_task
+
+        return None
 
 
 @dataclass
@@ -90,6 +105,23 @@ class Owner:
         """Return every task across the owner's pets."""
         return self.view_schedule()
 
+    def filter_tasks(self, completed: Optional[bool] = None, pet_name: Optional[str] = None) -> List[Task]:
+        """Return tasks that match the given completion status and/or pet name."""
+        tasks = self.get_all_tasks()
+
+        if completed is not None:
+            tasks = [task for task in tasks if task.completed is completed]
+
+        if pet_name is not None:
+            normalized_pet_name = pet_name.strip().lower()
+            tasks = [
+                task
+                for task in tasks
+                if task.pet is not None and normalized_pet_name in task.pet.name.lower()
+            ]
+
+        return tasks
+
 
 @dataclass
 class Scheduler:
@@ -112,6 +144,22 @@ class Scheduler:
         if task not in self.tasks:
             self.tasks.append(task)
 
+    def sort_by_time(self, tasks: Optional[List[Task]] = None) -> List[Task]:
+        """Return tasks sorted by time using a lambda key for HH:MM values."""
+        tasks_to_sort = list(tasks) if tasks is not None else []
+        if not tasks_to_sort:
+            if self.pet is not None:
+                tasks_to_sort = list(self.pet.tasks)
+            elif self.owner is not None:
+                tasks_to_sort = self.owner.get_all_tasks()
+            else:
+                tasks_to_sort = list(self.tasks)
+
+        return sorted(
+            tasks_to_sort,
+            key=lambda task: tuple(int(part) for part in task.time.split(":")),
+        )
+
     def view_schedule(self) -> List[Task]:
         """Return the scheduled tasks sorted by time."""
         all_tasks = list(self.tasks)
@@ -120,8 +168,26 @@ class Scheduler:
         elif self.owner is not None:
             all_tasks = self.owner.get_all_tasks()
 
-        return sorted(all_tasks, key=lambda task: task.time)
+        return self.sort_by_time(all_tasks)
 
-    def check_conflicts(self) -> List[Task]:
-        """Return any conflicting tasks."""
-        return []
+    def check_conflicts(self) -> str:
+        """Return a lightweight warning message when tasks share the same time."""
+        all_tasks = list(self.tasks)
+        if self.pet is not None:
+            all_tasks = list(self.pet.tasks)
+        elif self.owner is not None:
+            all_tasks = self.owner.get_all_tasks()
+
+        seen_times: dict[str, List[Task]] = {}
+
+        for task in all_tasks:
+            if task.time not in seen_times:
+                seen_times[task.time] = []
+            seen_times[task.time].append(task)
+
+        for time_value, tasks_at_same_time in seen_times.items():
+            if len(tasks_at_same_time) > 1:
+                pet_names = ", ".join(sorted({task.pet.name for task in tasks_at_same_time if task.pet is not None}))
+                return f"Warning: {len(tasks_at_same_time)} tasks overlap at {time_value} for {pet_names or 'unassigned pets'}."
+
+        return "No conflicts detected."

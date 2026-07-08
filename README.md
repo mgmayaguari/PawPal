@@ -71,14 +71,14 @@ Sample test output:
 
 ## 📐 Smarter Scheduling
 
-> Fill in once you've implemented scheduling logic.
+The scheduling logic in PawPal+ now supports a few lightweight automation features:
 
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| Sorting behavior | `Scheduler.sort_by_time()` | Orders tasks by their `time` attribute using a lambda key that parses `HH:MM` values. |
+| Filtering behavior | `Owner.filter_tasks()` | Filters tasks by completion status and/or pet name. |
+| Conflict detection | `Scheduler.check_conflicts()` | Returns a warning message when multiple tasks share the same time slot. |
+| Recurring tasks | `Task.mark_complete()` | Creates a new pending task for the next occurrence when a task is marked complete and its frequency is `daily` or `weekly`. |
 
 ## 📸 Demo Walkthrough
 
